@@ -39,4 +39,54 @@ def multi_class_performance(y_true, y_pred):
 # read the data from comp_occur (1).csv
 data = pd.read_csv("Data/comp_occur (1).csv", delimiter = '\t', header = None)
 
-print(data)
+# this checks whether the dataset has only one column
+# data.shape returns a tuple(rows,colums)
+# safeguard to ensure the data is properly formatted
+if data.shape[1] == 1:
+    data = data[0].str.split(',', expand = True)
+
+# this extracts a subset of the DataFrame
+# 1: selects all rows starting from the second row (index 1) to the end
+# 1: selects all column (index 1) to the end
+x = data.iloc[1:,1:]
+
+# y_initial extract all the rows and only the first column
+y_initial = data.iloc[1:,0]
+
+#LabelEncoder in scikit-learn is a tool used to convert categorical labels into numerical values
+label_encoder_class = LabelEncoder()
+
+y = label_encoder_class.fit_transform(y_initial)
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 42)
+
+knn_results = []
+
+kvalue = [1,5,10,25]
+for k in kvalue:
+    knn = KNeighborsClassifier(k)
+    knn.fit(x_train, y_train)
+    y_pred = knn.predict(x_test)
+
+    knn_csv = KNeighborsClassifier(n_neighbors = k)
+    cv_accuracy = cross_val_score(knn_csv, x, y, cv = 5, scoring = 'accuracy')
+    cv_accuracy = cv_accuracy.mean()
+
+    mcc = matthews_corrcoef(y_test, y_pred)
+    sensitivity, specificity = multi_class_performance(y_test, y_pred)
+
+    knn_results.append({
+        'K': k,
+        'accuracy': cv_accuracy,
+        'mcc': mcc,
+        'sensitivity': sensitivity,
+        'specificity': specificity
+    })
+
+for result in knn_results:
+    print(f'K: {result['K']}')
+    print(f'Accuracy: {result['accuracy']:.3f}')
+    print(f'MCC: {result['mcc']:.3f}')
+    print(f'Sensitivity: {result['sensitivity']:.3f}')
+    print(f'Specificity: {result['specificity']:.3f}')
+    print()
