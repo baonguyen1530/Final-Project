@@ -6,7 +6,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_val_score
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras import layers, models
+from tensorflow.keras import layers, models, Input
 
 class ModelFactory:
     @staticmethod
@@ -25,14 +25,15 @@ class ModelFactory:
     @staticmethod
     def create_ann(input_shape, num_classes):
         """Create a deep learning model using TensorFlow/Keras."""
-        model = models.Sequential([
-            layers.Dense(256, activation='relu', input_shape=(input_shape,)),
-            layers.Dropout(0.3),
-            layers.Dense(128, activation='relu'),
-            layers.Dropout(0.2),
-            layers.Dense(64, activation='relu'),
-            layers.Dense(num_classes, activation='softmax')
-        ])
+        inputs = Input(shape=(input_shape,))
+        x = layers.Dense(256, activation='relu')(inputs)
+        x = layers.Dropout(0.3)(x)
+        x = layers.Dense(128, activation='relu')(x)
+        x = layers.Dropout(0.2)(x)
+        x = layers.Dense(64, activation='relu')(x)
+        outputs = layers.Dense(num_classes, activation='softmax')(x)
+        
+        model = models.Model(inputs=inputs, outputs=outputs)
         
         model.compile(
             optimizer='adam',
