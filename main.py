@@ -12,20 +12,14 @@ from sklearn.ensemble import BaggingClassifier
 from sklearn.feature_selection import SelectFromModel
 from sklearn.metrics import accuracy_score, classification_report
 
-
-
-
-
 # Step 1: Load the data
 g_data = pd.read_csv("g_data.csv", header=None, names=['Class', 'Fold', 'ProteinID', 'Sequence'])  # Protein sequences
 occur_data = pd.read_csv("occur.csv")  # Occurrence features
 attributes_data = pd.read_csv("attributes.csv", skiprows=1)  # Physicochemical properties
 
-
 # Process the attributes data to create a dictionary for easy access
 amino_acids = 'ACDEFGHIKLMNPQRSTVWY'
 attributes_dict = {}
-
 
 # Process each physicochemical property
 for i in range(1, 10):  # Using first 9 properties for simplicity, can be extended
@@ -34,8 +28,6 @@ for i in range(1, 10):  # Using first 9 properties for simplicity, can be extend
     for j, aa in enumerate(amino_acids):
         property_values[aa] = float(attributes_data.iloc[i-1, j+2])
     attributes_dict[property_name] = property_values
-
-
 
 # Step 2: Extract features from protein sequences
 def extract_sequence(sequence):
@@ -99,13 +91,6 @@ dip_features = pd.DataFrame(g_data['dip_features'].tolist())
 phys_features = pd.DataFrame(g_data['phys_features'].tolist())
 
 
-
-
-
-
-
-
-
 # Step 3: Combine features
 # Merge occurrence features and all sequence-derived features
 combined_data = pd.concat([
@@ -121,14 +106,6 @@ label_encoder = LabelEncoder()
 labels = label_encoder.fit_transform(g_data['Fold'])  # Now this will get Fold1, Fold2, etc.
 fold_mapping = dict(zip(range(len(label_encoder.classes_)), label_encoder.classes_))
 print(f"Label mapping: {fold_mapping}")
-
-
-
-
-
-
-
-
 
 
 # Step 4: Normalize and select features
@@ -308,12 +285,6 @@ print("Voting Classifier Accuracy:", round(accuracy_score(y_test, y_pred_voting)
 print(classification_report(y_test, y_pred_voting, zero_division=0))
 
 
-
-
-
-
-
-
 # Step 7: Cross-validation
 print("\nPerforming cross-validation with stratified k-fold...")
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
@@ -327,8 +298,6 @@ print("SVM Cross-Validation Balanced Accuracy:", round(cv_scores_svm.mean(), 2))
 
 cv_scores_voting = cross_val_score(voting, selected_features, labels, cv=cv, scoring='balanced_accuracy')
 print("Voting Cross-Validation Balanced Accuracy:", round(cv_scores_voting.mean(), 2))
-
-
 
 
 # NEW STEP
@@ -361,13 +330,6 @@ for model_name, accuracy in independent_results.items():
     print(f"{model_name}: {accuracy:.2f}")
 
 
-
-
-
-
-
-
-
 # Step 8: Save processed data (optional)
 processed_data = pd.concat([pd.DataFrame(normalized_features), pd.Series(labels, name='Label')], axis=1)
 processed_data.to_csv("Data/processed_data.csv", index=False)
@@ -386,7 +348,6 @@ model_accuracies = {
     "Stacking": round(accuracy_score(y_test, y_pred_stacking), 2),
     "Voting": round(accuracy_score(y_test, y_pred_voting), 2)
 }
-
 
 # Sort models by accuracy
 sorted_models = sorted(model_accuracies.items(), key=lambda x: x[1], reverse=True)
