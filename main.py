@@ -37,13 +37,6 @@ for i in range(1, 10):  # Using first 9 properties for simplicity, can be extend
 
 
 
-
-
-
-
-
-
-
 # Step 2: Extract features from protein sequences
 def extract_sequence(sequence):
     """Extract the protein sequence from the input format."""
