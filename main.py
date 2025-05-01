@@ -15,7 +15,6 @@ from sklearn.metrics import accuracy_score, classification_report
 
 
 
-
 # Step 1: Load the data
 g_data = pd.read_csv("g_data.csv", header=None, names=['Class', 'Fold', 'ProteinID', 'Sequence'])  # Protein sequences
 occur_data = pd.read_csv("occur.csv")  # Occurrence features
@@ -102,10 +101,6 @@ phys_features = pd.DataFrame(g_data['phys_features'].tolist())
 
 
 
-
-
-
-
 # Step 3: Combine features
 # Merge occurrence features and all sequence-derived features
 combined_data = pd.concat([
@@ -121,12 +116,6 @@ label_encoder = LabelEncoder()
 labels = label_encoder.fit_transform(g_data['Fold'])  # Now this will get Fold1, Fold2, etc.
 fold_mapping = dict(zip(range(len(label_encoder.classes_)), label_encoder.classes_))
 print(f"Label mapping: {fold_mapping}")
-
-
-
-
-
-
 
 
 
@@ -224,6 +213,7 @@ y_pred_rf = rf.predict(X_test)
 print("Random Forest Accuracy:", round(accuracy_score(y_test, y_pred_rf), 2))
 print(classification_report(y_test, y_pred_rf, zero_division=0))
 
+
 # Naïve Bayes with parameter exploration
 print("\nTraining Naive Bayes model...")
 nb = GaussianNB()
@@ -259,6 +249,8 @@ bagging.fit(X_train, y_train)
 y_pred_bagging = bagging.predict(X_test)
 print("Bagging Accuracy:", round(accuracy_score(y_test, y_pred_bagging), 2))
 print(classification_report(y_test, y_pred_bagging, zero_division=0))
+
+
 # AdaBoost Classifier
 print("\nTraining AdaBoost Classifier...")
 ada = AdaBoostClassifier(
@@ -271,6 +263,9 @@ ada.fit(X_train, y_train)
 y_pred_ada = ada.predict(X_test)
 print("AdaBoost Accuracy:", round(accuracy_score(y_test, y_pred_ada), 2))
 print(classification_report(y_test, y_pred_ada, zero_division=0))
+
+
+
 # Stacking Classifier
 print("\nTraining Stacking Classifier...")
 estimators = [
@@ -288,6 +283,8 @@ stacking.fit(X_train, y_train)
 y_pred_stacking = stacking.predict(X_test)
 print("Stacking Classifier Accuracy:", round(accuracy_score(y_test, y_pred_stacking), 2))
 print(classification_report(y_test, y_pred_stacking, zero_division=0))
+
+
 
 # Voting Classifier
 print("\nTraining Voting Classifier...")
@@ -311,9 +308,6 @@ print(classification_report(y_test, y_pred_voting, zero_division=0))
 
 
 
-
-
-
 # Step 7: Cross-validation
 print("\nPerforming cross-validation with stratified k-fold...")
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
@@ -327,8 +321,6 @@ print("SVM Cross-Validation Balanced Accuracy:", round(cv_scores_svm.mean(), 2))
 
 cv_scores_voting = cross_val_score(voting, selected_features, labels, cv=cv, scoring='balanced_accuracy')
 print("Voting Cross-Validation Balanced Accuracy:", round(cv_scores_voting.mean(), 2))
-
-
 
 
 # NEW STEP
@@ -363,11 +355,6 @@ for model_name, accuracy in independent_results.items():
 
 
 
-
-
-
-
-
 # Step 8: Save processed data (optional)
 processed_data = pd.concat([pd.DataFrame(normalized_features), pd.Series(labels, name='Label')], axis=1)
 processed_data.to_csv("Data/processed_data.csv", index=False)
@@ -397,12 +384,36 @@ for model_name, accuracy in sorted_models:
     print(f"{model_name} Accuracy: {accuracy}")
 
 print("\n=== Accuracy Improvement Summary ===")
-print("Original KNN Accuracy: 0.70 → New KNN Accuracy: " + str(model_accuracies["KNN"]))
-print("Original SVM Accuracy: 0.67 → New SVM Accuracy: " + str(model_accuracies["SVM"]))
-print("Original Random Forest Accuracy: 0.71 → New Random Forest Accuracy: " + str(model_accuracies["Random Forest"]))
-print("Original Naive Bayes Accuracy: 0.64 → New Naive Bayes Accuracy: " + str(model_accuracies["Naive Bayes"]))
-print("Original ANN Accuracy: 0.68 → New ANN Accuracy: " + str(model_accuracies["ANN"]))
-print("Original Bagging Accuracy: 0.68 → New Bagging Accuracy: " + str(model_accuracies["Bagging"]))
+
+# KNN (Original: 0.70)
+knn_change = ((model_accuracies["KNN"] - 0.70) / 0.70) * 100
+print(f"Original KNN Accuracy: 0.70 → New KNN Accuracy: {model_accuracies['KNN']} ({knn_change:+.1f}%)")
+
+# SVM (Original: 0.67)
+svm_change = ((model_accuracies["SVM"] - 0.67) / 0.67) * 100
+print(f"Original SVM Accuracy: 0.67 → New SVM Accuracy: {model_accuracies['SVM']} ({svm_change:+.1f}%)")
+
+# Random Forest (Original: 0.71)
+rf_change = ((model_accuracies["Random Forest"] - 0.71) / 0.71) * 100
+print(f"Original Random Forest Accuracy: 0.71 → New Random Forest Accuracy: {model_accuracies['Random Forest']} ({rf_change:+.1f}%)")
+
+# Naive Bayes (Original: 0.64)
+nb_change = ((model_accuracies["Naive Bayes"] - 0.64) / 0.64) * 100
+print(f"Original Naive Bayes Accuracy: 0.64 → New Naive Bayes Accuracy: {model_accuracies['Naive Bayes']} ({nb_change:+.1f}%)")
+
+# ANN (Original: 0.68)
+ann_change = ((model_accuracies["ANN"] - 0.68) / 0.68) * 100
+print(f"Original ANN Accuracy: 0.68 → New ANN Accuracy: {model_accuracies['ANN']} ({ann_change:+.1f}%)")
+
+# Bagging (Original: 0.68)
+bagging_change = ((model_accuracies["Bagging"] - 0.68) / 0.68) * 100
+print(f"Original Bagging Accuracy: 0.68 → New Bagging Accuracy: {model_accuracies['Bagging']} ({bagging_change:+.1f}%)")
 
 print("\nBest Model: " + sorted_models[0][0] + " with accuracy " + str(sorted_models[0][1]))
-print("Average accuracy improvement: " + str(round(((model_accuracies["KNN"] + model_accuracies["SVM"] + model_accuracies["Random Forest"] + model_accuracies["Naive Bayes"] + model_accuracies["ANN"] + model_accuracies["Bagging"])/6 - 0.68), 2)))
+
+# Calculate average improvement
+avg_original = 0.68
+avg_new = (model_accuracies["KNN"] + model_accuracies["SVM"] + model_accuracies["Random Forest"] + 
+          model_accuracies["Naive Bayes"] + model_accuracies["ANN"] + model_accuracies["Bagging"]) / 6
+avg_change = ((avg_new - avg_original) / avg_original) * 100
+print(f"Average accuracy improvement: {round(avg_new - avg_original, 2)} ({avg_change:+.1f}%)")
